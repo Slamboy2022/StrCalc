@@ -2,62 +2,74 @@
 import java.util.Scanner;
 
 public class Calc {
-    Scanner scanner = new Scanner(System.in);
 
-    protected String calcMat() throws IllegalArgumentException {
-       String result = null;
 
-       String[] input = scanner.nextLine().split(" ");
 
-        if(input.length != 3) throw new IllegalArgumentException("ОШИБКА: должно быть введено Строка Оператор Строка/число!");
+    public String calcMat() {
+        Scanner scanner = new Scanner(System.in);
+        String res;
+        String input = scanner.nextLine();
 
-        String str1 = input[0].replace("\"", "" );
-        String operator = input[1];
-        String str2 = input[2];
-        int n ;
+        String[] inputStr = new String[2];
 
-        switch (operator)
-        {
-            case "+":
-                result = str1 + str2;
-                break;
-            case "/":
-                try {
-                    n = parse(str2);
-                    int subStrLength = str1.length() / n;
-                    result = str1.substring(0, subStrLength);
+            if(input.contains("+") || input.contains("-")) {
+                input = input.substring(1,input.length() - 1);
+                inputStr = input.split("\"");
+            }
+            else if (input.contains("*") || input.contains("/")){
+                inputStr = input.split(" ");
+            }
+
+            inputStr[2] = inputStr[2].replace("\"", "");
+            inputStr[0] = inputStr[0].replace("\"", "");
+            inputStr[1] = inputStr[1].replace(" ", "");
+
+            switch (inputStr[1]) {
+                case "+": {
+                    res = inputStr[0] + inputStr[2];
                     break;
                 }
-                catch (NumberFormatException e){
-                    result = "ОШИбКА: Нельзя делить на строку";
+                case "-": {
+                    res = inputStr[0].replace(inputStr[2], "");
+                    break;
                 }
-            case "*":
-                try {
-                    n = parse(str2);
-                    StringBuilder builder = new StringBuilder();
-                    for (int i = 0; i < n; i++)
-                    {
-                        builder.append(str1);
+                case "/": {
+                    try {
+                        int n = parse(inputStr[2]);
+                        int subStrLength = inputStr[0].length() / n;
+                        res = inputStr[0].substring(0, subStrLength);
+                        break;
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("ОШИБКА: Нельзя делить на строку!");
                     }
-                    result = builder.toString();
-                }catch (NumberFormatException e)
-                {
-                    result = "ОШИбКА: Нельзя умножить на строку";
                 }
-                break;
-            case "-":
-                result = str1.replace(str2,"");
-                break;
-            default:
-                throw new IllegalArgumentException("ОШИБКА: неправильный оператор!");
+                case "*": {
+                    try {
+                        int n = parse(inputStr[2]);
+                        StringBuilder builder = new StringBuilder();
+                        int i = 0;
+                        while (i != n) {
+                            i++;
+                            builder.append(inputStr[0]);
+                        }
+                        res = builder.toString();
+                        break;
+                    } catch (NumberFormatException e) {
+                        res = "ОШИбКА: Нельзя умножить на строку";
+                        break;
+                    }
+                }
+                default: {
+                    throw new IllegalArgumentException("ОШИБКА: неправильный оператор!");
+                }
+            }
+            if (res.length() > 40) {
+                res = res.substring(0, 40) + "...";
+            }
 
-        }
-        if(result.length() > 40)
-        {
-            result = result.substring(0,40) + "...";
-        }
-        return "Ответ: " + "\"" + result + "\"";
+            return "Ответ: " + "\"" + res + "\"";
     }
+
     private int parse(String s)
     {
         int result = Integer.parseInt(s);
